@@ -2,6 +2,8 @@
 //                  uit blobdetectionavans.h  
 // Jan Oostindie, dd 17-3-2016
 
+// Author: Gerben van Dooren, 2124419
+
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -11,6 +13,56 @@
 
 using namespace cv;
 using namespace std;
+
+struct Blob
+{
+	int blobID;
+	Point firstPixel;
+	Point centre;
+	int area;
+} blob;
+
+list<Blob> blobs;
+
+///=============================== To do's: =================================///
+//struct maken waar je objecten kan opslaan:
+//BLOBID
+//Firstpixel
+//Centre
+//Area
+
+//type schermen veranderen zodat ik ze kan resizen.
+//zorgen dat de sliders op het scherm vallen
+//waardes van de twee sliders uitlezen
+//bepalen voor de opgeslagen blobs of deze areas tussen de grenzen vallen
+///==========================================================================///
+
+//Trackbar variables:
+const int threshhold_slider_max = 255;
+int threshhold_sliderMin = 100;
+int threshhold_sliderMax = 100;
+
+int threshhold_valueMinArea = 100;
+int threshhold_valueMaxArea = 100;
+
+void on_trackbarMin(int, void*)
+{
+	threshhold_valueMinArea = threshhold_sliderMin;
+
+	//checken welke objecten er nog in beeld mogen komen
+	//imshow("")
+}
+
+void on_trackbarMax(int, void*)
+{
+	threshhold_valueMaxArea = threshhold_sliderMax;
+
+	//checken welke objecten er nog in beeld mogen komen
+
+	//update beeld:
+	//imshow("")
+}
+
 
 int main(int argc, char* argv[])
 {
@@ -24,7 +76,7 @@ int main(int argc, char* argv[])
 
 	// Lees de afbeelding in
 	Mat image;
-	image = imread(argv[1]);
+	image = imread(argv[1], IMREAD_COLOR);
 	if (!image.data)
 	{
 		cout << "Could not open or find the image" << std::endl;
@@ -33,7 +85,7 @@ int main(int argc, char* argv[])
 
 	// De afbeelding converteren naar een grijswaarde afbeelding
 	Mat gray_image;
-	cvtColor(image, gray_image, COLOR_BGR2GRAY);
+	cvtColor(image, gray_image, COLOR_RGB2GRAY);
 
 	// Converteren naar grijswaarde afbeelding
 	cout << "Imagefile: " << argv[1] << " met succes geconverteerd naar grijswaarde beeld." << endl;
@@ -64,7 +116,9 @@ int main(int argc, char* argv[])
 	// (show16SImageClip laat alle pixels met een waarde tussen 0 en 255 zien. Waardes onder 0
 	// worden op 0 afgebeeld, waardes boven 255 worden op 255 afgebeeld.)
 	show16SImageStretch(labeledImage, "Labeled Image");
-
+	resizeWindow("Labeled Image", 600, 600);
+	int value = 10;
+	createTrackbar("Min Area", "Labeled Image", &value, 1);
 	imwrite("c:\\dump\\labeledImage.jpg", labeledImage);
 
 	// labelBLOBsInfo: met deze functie kun je ook BLOBs labelen. De functie geeft van 
@@ -79,7 +133,7 @@ int main(int argc, char* argv[])
 	labelBLOBsInfo(binary16S, labeledImage2, firstpixelVec2, posVec2, areaVec2);
 	show16SImageStretch(labeledImage2, "Labeled Image 2");
 
-	cout << endl << "*******************************************" << endl << endl;
+	cout << endl << "***************" << endl << endl;
 
 	// Toon alle informatie in de console 
 	cout << "Aantal gevonden BLOBs = " << firstpixelVec2.size() << endl;
@@ -91,7 +145,7 @@ int main(int argc, char* argv[])
 		cout << "area = " << areaVec2[i] << endl;
 	}
 
-	cout << endl << "*******************************************" << endl << endl;
+	cout << endl << "***************" << endl << endl;
 
 	// Met de functie labelBLOBsInfo kun je ook een threshold instellen voor de oppervlakte
 	// van de BLOBs.
@@ -100,13 +154,15 @@ int main(int argc, char* argv[])
 	vector<Point2d *> firstpixelVec3;
 	vector<Point2d *> posVec3;
 	vector<int> areaVec3;
-	int minArea = 15000;
+
+	///hier moeten de twee waardes van de slider aan gekoppeld worden
+	int minArea = 14000;
 	int maxArea = 16000;
 	labelBLOBsInfo(binary16S, labeledImage3,
 	               firstpixelVec3, posVec3, areaVec3, minArea, maxArea);
 	show16SImageStretch(labeledImage3, "Labeled Image 3");
 
-	cout << endl << "*******************************************" << endl << endl;
+	cout << endl << "***************" << endl << endl;
 
 	// Toon alle informatie in de console 
 	cout << "Aantal gevonden BLOBs = " << firstpixelVec3.size() << endl;
@@ -118,7 +174,7 @@ int main(int argc, char* argv[])
 		cout << "area = " << areaVec3[i] << endl;
 	}
 
-	cout << endl << "*******************************************" << endl << endl;
+	cout << endl << "***************" << endl << endl;
 
 	// Nog een manier om het aantal BLOBs te verkrijgen...
 	cout << "Total number of BLOBs = " << maxPixelImage(labeledImage3) << endl;
@@ -126,5 +182,14 @@ int main(int argc, char* argv[])
 	string pipo;
 	cin >> pipo;
 
+	//Slider initialiseren:
+	createTrackbar("Minimum", "Labeled Image", &threshhold_sliderMin, threshhold_slider_max, on_trackbarMin);
+	createTrackbar("Maximum", "Labeled Image", &threshhold_sliderMax, threshhold_slider_max, on_trackbarMax);
+
+	//Callback function call for the first image
+	on_trackbarMin(threshhold_sliderMin, 0);
+	on_trackbarMax(threshhold_sliderMax, 0);
+
+	waitKey(0);
 	return 0;
 }
