@@ -10,26 +10,48 @@ cv::Mat image;
 cv::Mat binaryImage;
 cv::Mat labeledImage;
 
-void update(const char* window, cv::Mat* img)
+void update(const char* window, cv::Mat& img)
 {
+	std::vector<Point2d*> firstPicVector;
+	std::vector<Point2d*> posVec;
+	std::vector<int> areaVec;
+
 	std::cout << "Update window: " << window << std::endl;
-	cv::imshow(window, *img);
+	Mat bin;
+	img.convertTo(bin, CV_16S);
+	show16SImageStretch(bin, window); 
+	bin.release();
 }
 
-int min_value;
+int min_value = 0;
+int max_value = 30000;
 
 void on_trackbar_min(int pos, void* userData)
 {
-	std::cout << "Min_Value: " << min_value << std::endl;
-	show16SImageStretch(labeledImage, "Area");
+	std::vector<Point2d*> firstPicVector;
+	std::vector<Point2d*> posVec;
+	std::vector<int> areaVec;
+
+	Mat bin;
+	binaryImage.convertTo(bin, CV_16S);
+	labelBLOBsInfo(bin, labeledImage, firstPicVector, posVec, areaVec, min_value, max_value);
+	bin.release();
+	show16SImageStretch(labeledImage, "Area"); 
+	labeledImage.release();
 }
 
-int max_value;
 
 void on_trackbar_max(int pos, void* userData)
 {
-	std::cout << "Blobs: " << std::endl;
-	show16SImageStretch(labeledImage, "Area");
+	std::vector<Point2d*> firstPicVector;
+	std::vector<Point2d*> posVec;
+	std::vector<int> areaVec;
+	Mat bin;
+	binaryImage.convertTo(bin, CV_16S);
+	labelBLOBsInfo(bin, labeledImage, firstPicVector, posVec, areaVec, min_value, max_value);
+	bin.release();
+	show16SImageStretch(labeledImage, "Area"); 
+	labeledImage.release();
 }
 
 int threshold_value = 215;
@@ -44,7 +66,7 @@ void on_threshold_trackbar(int pos, void* userData)
 
 	int nBlobs = labelBLOBs(binary16S, labeledImage);
 	std::cout << "Blob amount: " << nBlobs << std::endl;
-	update("Threshold", &binaryImage);
+	update("Threshold", binaryImage);
 }
 
 int main(int argc, char* argv[])
@@ -73,8 +95,8 @@ int main(int argc, char* argv[])
 
 	cv::namedWindow("Area");
 	cv::imshow("Area", labeledImage);
-	cv::createTrackbar("Min_Value_Slider", "Area", &min_value, 20000, on_trackbar_min);
-	cv::createTrackbar("Max_Value_Slider", "Area", &max_value, 20000, on_trackbar_max);
+	cv::createTrackbar("Min_Value_Slider", "Area", &min_value, max_value, on_trackbar_min);
+	cv::createTrackbar("Max_Value_Slider", "Area", &max_value, max_value, on_trackbar_max);
 
 	cv::waitKey(0);
 }
