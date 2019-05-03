@@ -19,7 +19,7 @@ void update(const char* window, cv::Mat& img)
 	std::cout << "Update window: " << window << std::endl;
 	Mat bin;
 	img.convertTo(bin, CV_16S);
-	show16SImageStretch(bin, window); 
+	show16SImageStretch(bin, window);
 	bin.release();
 }
 
@@ -36,7 +36,7 @@ void on_trackbar_min(int pos, void* userData)
 	binaryImage.convertTo(bin, CV_16S);
 	labelBLOBsInfo(bin, labeledImage, firstPicVector, posVec, areaVec, min_value, max_value);
 	bin.release();
-	show16SImageStretch(labeledImage, "Area"); 
+	show16SImageStretch(labeledImage, "Area");
 	labeledImage.release();
 }
 
@@ -50,7 +50,7 @@ void on_trackbar_max(int pos, void* userData)
 	binaryImage.convertTo(bin, CV_16S);
 	labelBLOBsInfo(bin, labeledImage, firstPicVector, posVec, areaVec, min_value, max_value);
 	bin.release();
-	show16SImageStretch(labeledImage, "Area"); 
+	show16SImageStretch(labeledImage, "Area");
 	labeledImage.release();
 }
 
