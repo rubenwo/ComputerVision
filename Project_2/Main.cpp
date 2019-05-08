@@ -11,8 +11,11 @@ using namespace std;
 
 void detectBlobs(string);
 
-Mat labeledImage;
-Mat frame;
+Mat labeledImage, binary16S, frame, greyscale, binaryImage;
+
+Mat src, erosion_dst, dilation_dst;
+
+int nBlobs;
 
 int main(int argc, char* argv[])
 {
@@ -62,25 +65,36 @@ int main(int argc, char* argv[])
 
 void detectBlobs(string targetWindow)
 {
-	Mat greyscale, binaryImage;
 	cvtColor(frame, greyscale, cv::COLOR_RGB2GRAY);
-	cv::threshold(greyscale, binaryImage, 128, ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY);
+	cv::threshold(greyscale, binaryImage, 200, ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY);
 
-	//BLOBdetection
-	Mat binary16S;
+	Mat element = getStructuringElement(MORPH_RECT, Size(2, 2), Point(-1, -1));
+
+	for (int i = 1; i < 10; i++) {
+		erode(binaryImage, erosion_dst, element);
+		binaryImage = erosion_dst;
+	}
+
+	for (int i = 1; i < 10; i++) {
+		dilate(binaryImage, dilation_dst, element);
+		binaryImage = dilation_dst;
+	}
+
 	binaryImage.convertTo(binary16S, 3);
 	labelBLOBs(binary16S, labeledImage);
 	
-
 	std::vector<Point2d*> firstPicVector;
 	std::vector<Point2d*> posVec;
 	std::vector<int> areaVec;
-
-	int nBlobs = labelBLOBsInfo(binary16S, labeledImage, firstPicVector, posVec, areaVec, 500, 700);
-
+	
+	nBlobs = labelBLOBsInfo(binary16S, labeledImage, firstPicVector, posVec, areaVec, 1000, 1500);
+	
 	cout << nBlobs << endl;
-
+	
+	// imshow("Main", binaryImage); //test to show erosed and dilated image
 	show16SImageStretch(labeledImage, targetWindow);
+	
 	binary16S.release();
 	labeledImage.release();
+	binaryImage.release();
 }
