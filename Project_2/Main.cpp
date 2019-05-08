@@ -10,7 +10,6 @@ using namespace cv;
 using namespace std;
 
 void detectBlobs(string);
-void setupBlobDetector(void);
 
 Mat labeledImage, binary16S, frame, greyscale, binaryImage, erosion_dst, dilation_dst;
 
@@ -18,12 +17,12 @@ int main(int argc, char* argv[])
 {
 	SimpleBlobDetector::Params params;
 	// Change thresholds
-	params.minThreshold = 10;
-	params.maxThreshold = 200;
+	params.minThreshold = 200;
+	params.maxThreshold = 255;
 
 	// Filter by Area.
 	params.filterByArea = true;
-	params.minArea = 1000;
+	params.minArea = 300;
 
 	// Filter by Circularity
 	params.filterByCircularity = true;
@@ -51,8 +50,6 @@ int main(int argc, char* argv[])
 	std::cout << "Hello world!";
 	namedWindow("Main");
 
-	void setupBlobDetector();
-
 	while (true)
 	{
 		// Lees een nieuw frame
@@ -70,7 +67,20 @@ int main(int argc, char* argv[])
 		}
 
 		//BLOBdetection
-		detector->detect(frame, keypoints);
+		cv::threshold(greyscale, binaryImage, 200, ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY);
+
+		Mat element = getStructuringElement(MORPH_RECT, Size(1, 1), Point(-1, -1));
+		for (int i = 1; i < 10; i++) {
+			erode(binaryImage, erosion_dst, element);
+			binaryImage = erosion_dst * 255;
+		}
+
+		detector->detect(binaryImage, keypoints);
+
+		for (int i = 1; i < 10; i++) {
+			dilate(binaryImage, dilation_dst, element);
+			binaryImage = dilation_dst * 255;
+		}
 
 		Mat blobImg;
 		drawKeypoints(frame, keypoints, blobImg, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
@@ -78,6 +88,7 @@ int main(int argc, char* argv[])
 
 		// Het tonen van beeld
 		imshow("Main", blobImg);
+		imshow("black", binaryImage);
 
 		//  Wacht 30 ms op ESC-toets. Als ESC-toets is ingedrukt verlaat dan de loop
 		if (waitKey(1) == 27)
