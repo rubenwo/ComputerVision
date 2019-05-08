@@ -1,5 +1,5 @@
 #include <iostream>
-#include "../Project_1/BlobDetection.h"
+#include "BlobDetection.h"
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgproc/imgproc.hpp" 
 #include "opencv2/highgui/highgui.hpp"
@@ -8,6 +8,11 @@
 
 using namespace cv;
 using namespace std;
+
+void detectBlobs(string);
+
+Mat labeledImage;
+Mat frame;
 
 int main(int argc, char* argv[])
 {
@@ -22,23 +27,15 @@ int main(int argc, char* argv[])
 	//double dWidth = cap.get();
 	//double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
 
-	double dWidth = 1920;
-	double dHeight = 1080;
-
-	cout << "Frame size : " << dWidth << " x " << dHeight << endl;
-
 	std::cout << "Hello world!";
 	namedWindow("Main");
-
-	Mat frame;
-	Mat rotatedFrame;
 
 	while (true)
 	{
 		// Lees een nieuw frame
 		bool bSuccess = cap.read(frame);
 
-		flip(frame, frame, 0);
+		flip(frame, frame, ROTATE_180);
 
 		// Controlleer of het frame goed gelezen is.
 		if (!bSuccess)
@@ -47,11 +44,11 @@ int main(int argc, char* argv[])
 			break;
 		}
 
-		// Het tonen van grijswaarde beeld
+		//BLOBdetection
+		detectBlobs("Main");
 
-		rotate(frame, rotatedFrame, ROTATE_180);
-
-		imshow("MyVideo", rotatedFrame);
+		// Het tonen van beeld
+		imshow("MyVideo", frame);
 
 		//  Wacht 30 ms op ESC-toets. Als ESC-toets is ingedrukt verlaat dan de loop
 		if (waitKey(1) == 27)
@@ -60,6 +57,30 @@ int main(int argc, char* argv[])
 			break;
 		}
 	}
-
 	return 0;
+}
+
+void detectBlobs(string targetWindow)
+{
+	Mat greyscale, binaryImage;
+	cvtColor(frame, greyscale, cv::COLOR_RGB2GRAY);
+	cv::threshold(greyscale, binaryImage, 128, ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY);
+
+	//BLOBdetection
+	Mat binary16S;
+	binaryImage.convertTo(binary16S, 3);
+	labelBLOBs(binary16S, labeledImage);
+	
+
+	std::vector<Point2d*> firstPicVector;
+	std::vector<Point2d*> posVec;
+	std::vector<int> areaVec;
+
+	int nBlobs = labelBLOBsInfo(binary16S, labeledImage, firstPicVector, posVec, areaVec, 500, 700);
+
+	cout << nBlobs << endl;
+
+	show16SImageStretch(labeledImage, targetWindow);
+	binary16S.release();
+	labeledImage.release();
 }
