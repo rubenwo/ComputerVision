@@ -9,16 +9,35 @@
 using namespace cv;
 using namespace std;
 
-void detectBlobs(string);
-
-Mat labeledImage, binary16S, frame, greyscale, binaryImage;
-
-Mat src, erosion_dst, dilation_dst;
-
-int nBlobs;
+Mat frame, greyscale, binaryImage, dilation_dst, blobImg;;
 
 int main(int argc, char* argv[])
 {
+	//Zet de instellingen van de blobdetector
+	SimpleBlobDetector::Params params;
+	// Change thresholds
+	params.minThreshold = 200;
+	params.maxThreshold = 255;
+
+	// Filter by Area.
+	params.filterByArea = true;
+	params.minArea = 100;
+
+	// Filter by Circularity
+	params.filterByCircularity = true;
+	params.minCircularity = 0.1;
+
+	// Filter by Convexity
+	params.filterByConvexity = true;
+	params.minConvexity = 0.87;
+
+	// Filter by Inertia
+	params.filterByInertia = true;
+	params.minInertiaRatio = 0.01;
+	std::vector<KeyPoint> keypoints;
+
+	Ptr<SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
+
 	VideoCapture cap(0);
 
 	if (!cap.isOpened())
@@ -27,15 +46,12 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
-	//double dWidth = cap.get();
-	//double dHeight = cap.get(CV_CAP_PROP_FRAME_HEIGHT);
-
 	std::cout << "Hello world!";
 	namedWindow("Main");
 
 	while (true)
 	{
-		// Lees een nieuw frame
+		// Lees een nieuw afbeelding uit camera
 		bool bSuccess = cap.read(frame);
 
 		flip(frame, frame, ROTATE_180);
@@ -47,11 +63,28 @@ int main(int argc, char* argv[])
 			break;
 		}
 
+		cvtColor(frame, greyscale, cv::COLOR_RGB2GRAY);
+		
+		cv::threshold(greyscale, binaryImage, 200, ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY);
+		
 		//BLOBdetection
-		detectBlobs("Main");
+		Mat element = getStructuringElement(MORPH_ELLIPSE, Size(4, 4));
+
+		for (int i = 1; i < 10; i++) {
+			 dilate(binaryImage, dilation_dst, element);
+			 binaryImage = dilation_dst * 255;
+		}
+
+		detector->detect(binaryImage, keypoints);
+		imshow("black", binaryImage);
+
+
+		drawKeypoints(frame, keypoints, blobImg, Scalar(0, 0, 255), DrawMatchesFlags::DRAW_RICH_KEYPOINTS);
+		putText(blobImg, std::to_string(keypoints.size()), Point(10, 100), FONT_HERSHEY_PLAIN, 10, Scalar(0, 0, 255));
 
 		// Het tonen van beeld
-		imshow("MyVideo", frame);
+		imshow("Main", blobImg);
+
 
 		//  Wacht 30 ms op ESC-toets. Als ESC-toets is ingedrukt verlaat dan de loop
 		if (waitKey(1) == 27)
@@ -61,40 +94,4 @@ int main(int argc, char* argv[])
 		}
 	}
 	return 0;
-}
-
-void detectBlobs(string targetWindow)
-{
-	cvtColor(frame, greyscale, cv::COLOR_RGB2GRAY);
-	cv::threshold(greyscale, binaryImage, 200, ADAPTIVE_THRESH_GAUSSIAN_C, cv::THRESH_BINARY);
-
-	Mat element = getStructuringElement(MORPH_RECT, Size(2, 2), Point(-1, -1));
-
-	for (int i = 1; i < 10; i++) {
-		erode(binaryImage, erosion_dst, element);
-		binaryImage = erosion_dst;
-	}
-
-	for (int i = 1; i < 10; i++) {
-		dilate(binaryImage, dilation_dst, element);
-		binaryImage = dilation_dst;
-	}
-
-	binaryImage.convertTo(binary16S, 3);
-	labelBLOBs(binary16S, labeledImage);
-	
-	std::vector<Point2d*> firstPicVector;
-	std::vector<Point2d*> posVec;
-	std::vector<int> areaVec;
-	
-	nBlobs = labelBLOBsInfo(binary16S, labeledImage, firstPicVector, posVec, areaVec, 1000, 1500);
-	
-	cout << nBlobs << endl;
-	
-	// imshow("Main", binaryImage); //test to show erosed and dilated image
-	show16SImageStretch(labeledImage, targetWindow);
-	
-	binary16S.release();
-	labeledImage.release();
-	binaryImage.release();
 }
