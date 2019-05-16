@@ -14,7 +14,9 @@ int main(int argc, char* argv[])
 	blue_lower = cv::Scalar(100, 55, 55);
 	blue_upper = cv::Scalar(130, 255, 255);
 
-	//cv::useOpenVX();
+	cv::useOpenVX();
+
+	// Open video resource
 	cv::VideoCapture vcap("../resources/vid.mp4");
 
 	if (!vcap.isOpened())
@@ -22,42 +24,47 @@ int main(int argc, char* argv[])
 		std::cout << "Cannot open the video" << std::endl;
 		return -1;
 	}
+	// Create structuring element once
 	cv::Mat element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(4, 4));
 
+	// processing loop
 	for (;;)
 	{
 		std::vector<cv::Mat> blue_contours;
 		std::vector<cv::Vec4i> hierarchy;
-		// processing loop
+
 		if (vcap.read(frame))
 		{
-			cv::resize(frame, frame, cv::Size(540, 960));
+			cv::resize(frame, frame, cv::Size(540, 960)); //Resize the image to a easier resolution.
 
-			cv::GaussianBlur(frame, blurred, cv::Size(11, 11), 0);
+			cv::GaussianBlur(frame, blurred, cv::Size(11, 11), 0); //Blur the image in order to remove noise.
 
-			cv::cvtColor(blurred, hsv, CV_BGR2HSV);
+			cv::cvtColor(blurred, hsv, CV_BGR2HSV); //Convert the blurred image to HSV.
 
-			cv::inRange(hsv, blue_lower, blue_upper, blue_mask);
+			cv::inRange(hsv, blue_lower, blue_upper, blue_mask); //Create a binary output with only the blue's.
 
+
+			//Erode & Dilate to remove smaller objects
 			cv::erode(blue_mask, blue_mask, element, cv::Point(-1, -1), 5);
 			cv::dilate(blue_mask, blue_mask, element, cv::Point(-1, -1), 5);
 
 			cv::findContours(blue_mask, blue_contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
-			//	cv::drawContours(frame, blue_contours, -1, cv::Scalar(0, 255, 0), 10);
+			//Find the contours of the blue objects.
 			std::vector<cv::Moments> mu(blue_contours.size());
 
 			for (int i = 0; i < blue_contours.size(); i++)
 			{
-				mu[i] = cv::moments(blue_contours[i], false);
+				mu[i] = cv::moments(blue_contours[i], false); //Add the contours to the moments vector
 			}
 
-			// get the centroid of figures.
+			// get the centroid of the objects.
 			std::vector<cv::Point2f> mc(blue_contours.size());
 			for (int i = 0; i < blue_contours.size(); i++)
 			{
 				mc[i] = cv::Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
 			}
-			// draw contours
+
+			// draw the contours of the objects.
 			for (int i = 0; i < blue_contours.size(); i++)
 			{
 				cv::Scalar color = cv::Scalar(0, 0, 255); // B G R values
@@ -66,7 +73,7 @@ int main(int argc, char* argv[])
 			}
 
 
-			cv::imshow("Contours", frame);
+			cv::imshow("Contours", frame); //Finally show the image with the contours
 		}
 		else
 		{
