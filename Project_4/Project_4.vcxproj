@@ -19,7 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BackgroundRemover.cpp" />
+    <ClCompile Include="FaceDetector.cpp" />
+    <ClCompile Include="FingerCounter.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="SkinDetector.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="BackgroundRemover.hpp" />
+    <ClInclude Include="FaceDetector.hpp" />
+    <ClInclude Include="FingerCounter.hpp" />
+    <ClInclude Include="SkinDetector.hpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
@@ -79,7 +89,12 @@
       <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>$(OPENCV_DIR)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)\x64\vc15\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_aruco346d.lib;opencv_rgbd346d.lib;opencv_bgsegm346d.lib;opencv_saliency346d.lib;opencv_bioinspired346d.lib;opencv_shape346d.lib;opencv_calib3d346d.lib;opencv_stereo346d.lib;opencv_ccalib346d.lib;opencv_stitching346d.lib;opencv_core346d.lib;opencv_structured_light346d.lib;opencv_datasets346d.lib;opencv_superres346d.lib;opencv_dnn346d.lib;opencv_surface_matching346d.lib;opencv_dnn_objdetect346d.lib;opencv_text346d.lib;opencv_dpm346d.lib;opencv_tracking346d.lib;opencv_face346d.lib;opencv_video346d.lib;opencv_features2d346d.lib;opencv_videoio346d.lib;opencv_flann346d.lib;opencv_videostab346d.lib;opencv_fuzzy346d.lib;opencv_xfeatures2d346d.lib;opencv_hfs346d.lib;opencv_ximgproc346d.lib;opencv_highgui346d.lib;opencv_xobjdetect346d.lib;opencv_imgcodecs346d.lib;opencv_xphoto346d.lib;opencv_imgproc346d.lib;opencv_img_hash346d.lib;opencv_line_descriptor346d.lib;opencv_ml346d.lib;opencv_objdetect346d.lib;opencv_optflow346d.lib;opencv_phase_unwrapping346d.lib;opencv_photo346d.lib;opencv_plot346d.lib;opencv_reg346d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
