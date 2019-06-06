@@ -14,34 +14,10 @@
 
 cv::UMat frame, blurred, hsv, skin_mask;
 
-void drawContours(std::vector<cv::Mat>& contours, std::vector<cv::Vec4i>& hierarchy)
-{
-	std::vector<cv::Moments> mu(contours.size());
-
-	for (int i = 0; i < contours.size(); i++)
-	{
-		mu[i] = cv::moments(contours[i], false); //Add the contours to the moments vector
-	}
-
-	// get the centroid of the objects.
-	std::vector<cv::Point2f> mc(contours.size());
-	for (int i = 0; i < contours.size(); i++)
-	{
-		mc[i] = cv::Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
-	}
-
-	// draw the contours of the objects.
-	for (int i = 0; i < contours.size(); i++)
-	{
-		cv::Scalar color = cv::Scalar(0, 0, 255); // B G R values
-		drawContours(frame, contours, i, color, 2, 8, hierarchy, 0, cv::Point());
-		circle(frame, mc[i], 4, color, -1, 8, 0);
-	}
-}
-
-int main(int argc, char* argv[]) try
+int main(int argc, char* argv[])
 {
 	cv::VideoCapture vcap("../resources/hand.mp4");
+	// cv::VideoCapture vcap(0);
 	auto skin_lower = cv::Scalar(0, 0.23 * 255, 50);
 	auto skin_upper = cv::Scalar(50, 0.68 * 255, 255);
 
@@ -72,15 +48,13 @@ int main(int argc, char* argv[]) try
 			cv::dilate(skin_mask, skin_mask, element, cv::Point(-1, -1), 4);
 			cv::erode(skin_mask, skin_mask, element, cv::Point(-1, -1), 2);
 
-			frame = fingerCounter.findFingersCount(skin_mask, frame);
-
-			// drawContours(contours, hierarchy); //Not needed to test
+			fingerCounter.findFingersCount(skin_mask, frame);
 
 			//-----Show results-----//
 			cv::imshow("Original", frame);
-			// cv::imshow("Blurred", blurred);
-			// cv::imshow("HSV", hsv);
-			// cv::imshow("Skin Mask", skin_mask);
+			cv::imshow("Blurred", blurred);
+			cv::imshow("HSV", hsv);
+			cv::imshow("Skin Mask", skin_mask);
 		}
 		else
 		{
@@ -92,8 +66,3 @@ int main(int argc, char* argv[]) try
 
 	return 0;
 }
-catch (cv::Exception e)
-{
-	std::cout << "An exception occurred. Exception Nr. " << e.err << '\n';
-}
-
