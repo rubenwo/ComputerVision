@@ -5,13 +5,13 @@ class BackgroundRemover
 {
 public:
 	BackgroundRemover(void);
-	void calibrate(cv::UMat input);
-	cv::UMat getForeground(cv::UMat input);
+	void calibrate(cv::Mat input);
+	cv::Mat getForeground(cv::Mat input);
 
 private:
-	cv::UMat background;
+	cv::Mat background;
 	bool calibrated = false;
 
-	cv::UMat getForegroundMask(cv::UMat input);
-	void removeBackground(cv::UMat input, cv::UMat background);
+	cv::Mat getForegroundMask(cv::Mat input);
+	void removeBackground(cv::Mat input, cv::Mat background);
 };

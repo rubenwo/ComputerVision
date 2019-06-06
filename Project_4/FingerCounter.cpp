@@ -4,7 +4,7 @@ FingerCounter::FingerCounter()
 {
 }
 
-cv::UMat FingerCounter::findFingersCount(cv::UMat input_image, cv::UMat frame)
+cv::Mat FingerCounter::findFingersCount(cv::Mat input_image, cv::Mat frame)
 {
 	return frame;
 }

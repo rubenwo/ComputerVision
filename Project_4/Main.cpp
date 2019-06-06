@@ -7,7 +7,7 @@
 #include "SkinDetector.hpp"
 #include "BackgroundRemover.hpp"
 
-cv::UMat frame, scaled, flipped, fingerCount;
+cv::Mat frame, scaled, flipped, fingerCount;
 
 
 int main(int argc, char* argv[])
@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
 	SkinDetector skinDetector;
 	FaceDetector faceDetector;
 	FingerCounter fingerCounter;
-	cv::UMat frame, frameOut, handMask, foreground, fingerCountDebug;
+	cv::Mat frame, frameOut, handMask, foreground, fingerCountDebug;
 
 
 	for (;;)

@@ -5,5 +5,5 @@ class FingerCounter
 {
 public:
 	FingerCounter(void);
-	cv::UMat findFingersCount(cv::UMat input_image, cv::UMat frame);
+	cv::Mat findFingersCount(cv::Mat input_image, cv::Mat frame);
 };

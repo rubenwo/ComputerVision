@@ -4,6 +4,6 @@ FaceDetector::FaceDetector()
 {
 }
 
-void FaceDetector::removeFaces(cv::UMat input, cv::UMat output)
+void FaceDetector::removeFaces(cv::Mat input, cv::Mat output)
 {
 }
