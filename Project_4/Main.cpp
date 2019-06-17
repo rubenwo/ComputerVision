@@ -16,9 +16,9 @@ cv::UMat frame, blurred, hsv, skin_mask;
 
 int main(int argc, char* argv[])
 {
-	cv::VideoCapture vcap("../resources/hand.mp4");
-	// cv::VideoCapture vcap(0);
-	auto skin_lower = cv::Scalar(0, 0.23 * 255, 50);
+	// cv::VideoCapture vcap("../resources/hand.mp4");
+	cv::VideoCapture vcap(0);
+	auto skin_lower = cv::Scalar(0, 0.10 * 255, 50);
 	auto skin_upper = cv::Scalar(50, 0.68 * 255, 255);
 
 	cv::useOpenVX();
@@ -35,7 +35,7 @@ int main(int argc, char* argv[])
 		if (vcap.read(frame))
 		{
 			//-----Pre-Process frame-----//
-			cv::resize(frame, frame, cv::Size(720, 1240));
+			// cv::resize(frame, frame, cv::Size(720, 1240));
 			//cv::flip(frame, frame, +1);
 
 			//cv::GaussianBlur(frame, blurred, cv::Size(11, 11), 0); //Blur the image in order to remove noise.
