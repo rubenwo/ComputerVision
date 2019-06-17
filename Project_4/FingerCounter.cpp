@@ -29,7 +29,7 @@ int getAngle(cv::Point a, cv::Point b, cv::Point c)
 
 	float alpha = atan2(cross, dot);
 
-	return (int)floor(alpha * 180 / M_PI + 0.5);
+	return static_cast<int>(floor(alpha * 180 / M_PI + 0.5));
 }
 
 void drawContours(std::vector<cv::Mat>& contours, std::vector<cv::Vec4i>& hierarchy, cv::UMat frame)

@@ -16,16 +16,12 @@ cv::UMat frame, blurred, hsv, skin_mask;
 
 int main(int argc, char* argv[])
 {
-	// cv::VideoCapture vcap("../resources/hand.mp4");
-	cv::VideoCapture vcap(0);
+	cv::VideoCapture vcap("../resources/hand.mp4");
+	// cv::VideoCapture vcap(0);
 	auto skin_lower = cv::Scalar(0, 0.10 * 255, 50);
 	auto skin_upper = cv::Scalar(50, 0.68 * 255, 255);
 
 	cv::useOpenVX();
-
-	BackgroundRemover backgroundRemover;
-	SkinDetector skinDetector;
-	FaceDetector faceDetector;
 	FingerCounter fingerCounter;
 
 	cv::Mat element = getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(4, 4));
@@ -35,7 +31,7 @@ int main(int argc, char* argv[])
 		if (vcap.read(frame))
 		{
 			//-----Pre-Process frame-----//
-			// cv::resize(frame, frame, cv::Size(720, 1240));
+			cv::resize(frame, frame, cv::Size(720, 1240));
 			//cv::flip(frame, frame, +1);
 
 			//cv::GaussianBlur(frame, blurred, cv::Size(11, 11), 0); //Blur the image in order to remove noise.
@@ -43,7 +39,7 @@ int main(int argc, char* argv[])
 
 			cv::cvtColor(blurred, hsv, CV_BGR2HSV); //Convert the blurred image to HSV.
 
-			cv::inRange(hsv, skin_lower, skin_upper, skin_mask); //Create a binary output with only the blue's.
+			cv::inRange(hsv, skin_lower, skin_upper, skin_mask); //Create a binary output with only the color of the person's.
 
 			cv::dilate(skin_mask, skin_mask, element, cv::Point(-1, -1), 4);
 			cv::erode(skin_mask, skin_mask, element, cv::Point(-1, -1), 2);
